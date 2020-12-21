@@ -1,0 +1,40 @@
+{
+  "@context": [
+    "dtmi:dtdl:context;2"
+  ],
+  "@id": "dtmi:com:cosmotech:supply:ModelParameters;1",
+  "@type": "Interface",
+  "displayName": "ModelParameters",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "TimeStepDuration",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "TimeStepPerCycle",
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "NumberOfCycle",
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "StartingDate",
+      "schema": "dateTime"
+    },
+    {
+      "@type": "Property",
+      "name": "ManageBacklogQuantities",
+      "schema": "boolean"
+    },
+    {
+      "@type": "Property",
+      "name": "EnforceProductionPlan",
+      "schema": "boolean"
+    }
+  ]
+}
