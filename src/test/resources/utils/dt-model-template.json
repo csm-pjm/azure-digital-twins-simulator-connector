@@ -35,6 +35,26 @@
       "@type": "Property",
       "name": "EnforceProductionPlan",
       "schema": "boolean"
+    },
+    {
+      "@type": "Property",
+      "name": "OptimizationObjective",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "ServiceLevelMaximization",
+            "displayName": "ServiceLevelMaximization",
+            "enumValue": "ServiceLevelMaximization"
+          },
+          {
+            "name": "ProfitMaximization",
+            "displayName": "ProfitMaximization",
+            "enumValue": "ProfitMaximization"
+          }
+        ]
+      }
     }
   ]
 }

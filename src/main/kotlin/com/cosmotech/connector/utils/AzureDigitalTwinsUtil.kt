@@ -4,7 +4,7 @@ import com.azure.digitaltwins.core.BasicDigitalTwin
 import com.azure.digitaltwins.core.BasicRelationship
 import com.azure.digitaltwins.core.DigitalTwinsClient
 import com.cosmotech.connector.commons.pojo.CsvData
-import com.cosmotech.connector.constants.digitalTwinDefaultHeader
+import com.cosmotech.connector.constants.modelDefaultProperties
 import com.cosmotech.connector.constants.relationshipDefaultHeader
 import com.cosmotech.connector.extensions.getModelNameFromModelId
 import com.fasterxml.jackson.databind.util.RawValue
@@ -18,22 +18,22 @@ class AzureDigitalTwinsUtil {
         /**
          * Construct a digital twin row to print into a CSV
          * @param defaultHeaderValues the default row values
-         * @param headerCellName the list of header cell name
+         * @param headers the list of header cell name
          * @param digitalTwin a digital twin
          * @return the data row to print
          */
         @JvmStatic
         fun constructDigitalTwinRowValue(
             defaultHeaderValues: ArrayList<String>,
-            headerCellName: MutableList<String>,
+            headers: MutableMap<String,String>,
             digitalTwin: BasicDigitalTwin
         ): ArrayList<String> {
 
             val digitalTwinRow = ArrayList(defaultHeaderValues)
 
-            headerCellName.forEach {
-                if (!digitalTwinDefaultHeader.contains(it)) {
-                    val specificCustomProperties = digitalTwin.contents[it]
+            headers.forEach { (headerCellName, _) ->
+                if (!modelDefaultProperties.contains(headerCellName)) {
+                    val specificCustomProperties = digitalTwin.contents[headerCellName]
                     var specificCustomPropertiesValue = specificCustomProperties.toString()
                     if (specificCustomProperties is RawValue) {
                         specificCustomPropertiesValue = specificCustomProperties.rawValue().toString()
@@ -66,13 +66,13 @@ class AzureDigitalTwinsUtil {
          * Construct a digital twin row to print into a CSV
          * @param digitalTwin a digital twin
          * @param digitalTwinsToExport digital twin data rows
-         * @param digitalTwinHeaderName CSV digital twin header names
+         * @param digitalTwinHeaderNameAndType CSV digital twin header names
          * @return the list of digital twin data rows
          */
         @JvmStatic
         fun constructDigitalTwinInformation(
             digitalTwin: BasicDigitalTwin,
-            digitalTwinHeaderName: ArrayList<String>,
+            digitalTwinHeaderNameAndType: MutableMap<String,String>,
             dtHeaderDefaultValues: ArrayList<String>,
             digitalTwinsToExport: MutableList<CsvData>
         ) {
@@ -80,23 +80,17 @@ class AzureDigitalTwinsUtil {
             val csvData = digitalTwinsToExport.find { it.fileName == modelName }
             if (null != csvData) {
                 val rowValue =
-                    constructDigitalTwinRowValue(dtHeaderDefaultValues, csvData.headers, digitalTwin)
+                    constructDigitalTwinRowValue(dtHeaderDefaultValues, csvData.headerNameAndType, digitalTwin)
                 csvData.rows.add(rowValue)
             } else {
-                val headerNames = ArrayList(digitalTwinHeaderName)
-                digitalTwin.contents.forEach {
-                    if (!headerNames.contains(it.key)) {
-                        headerNames.add(it.key)
-                    }
-                }
                 val digitalTwinRowValue = constructDigitalTwinRowValue(
                     dtHeaderDefaultValues,
-                    headerNames,
+                    digitalTwinHeaderNameAndType,
                     digitalTwin
                 )
                 val rows = mutableListOf<MutableList<String>>()
                 rows.add(digitalTwinRowValue)
-                digitalTwinsToExport.add(CsvData(modelName, headerNames, rows))
+                digitalTwinsToExport.add(CsvData(modelName, digitalTwinHeaderNameAndType, rows))
             }
         }
 
@@ -124,16 +118,17 @@ class AzureDigitalTwinsUtil {
                         relationInformation.rows.add(constructRelationshipRowValue(relation))
                     }
                 } else {
-                    val relationshipHeaderName = relationshipDefaultHeader.toMutableList()
+                    val relationshipHeaderName = HashMap(relationshipDefaultHeader)
                     if (basicRelationships.isNotEmpty()) {
-                        basicRelationships[0].properties.keys.forEach { relationshipHeaderName.add(
-                            it
-                        ) }
+                        //TODO Handle relationship properties correctly
+                        /*basicRelationships[0].properties.keys.forEach {
+                            relationshipHeaderName[it] = "string"
+                        }*/
                         val rows = mutableListOf<MutableList<String>>()
                         basicRelationships.forEach { relation ->
                             rows.add(constructRelationshipRowValue(relation))
                         }
-                        relationshipsToExport.add(CsvData(relationName,relationshipHeaderName,rows))
+                        relationshipsToExport.add(CsvData(relationName, relationshipHeaderName,rows))
                     }
                 }
             }

@@ -5,11 +5,6 @@ package com.cosmotech.connector.constants
 // ############################
 
 /**
- * Probe suffix used to filter Probe Digital Twins
- */
-const val PROBE_SUFFIX = "Probe"
-
-/**
  * Environment variable in which the ADT endpoint is stored
  */
 const val ENVVAR_ADT_INSTANCE_URL = "ADT_INSTANCE_URL"
@@ -22,12 +17,12 @@ const val ENVVAR_ABSOLUTE_PATH_EXPORT_CSV_FILE = "EXPORT_CSV_FILE_ABSOLUTE_PATH"
 /**
  * Default header cell name for digital twins
  */
-val digitalTwinDefaultHeader = mutableListOf("id")
+val modelDefaultProperties = mutableMapOf("id" to "string")
 
 /**
  * Default header cell name for relations
  */
-val relationshipDefaultHeader = mutableListOf("source", "target", "name")
+val relationshipDefaultHeader = mutableMapOf("source" to "string","target" to "string","name" to "string")
 
 
 
