@@ -1,12 +1,12 @@
-package com.cosmotech.connector.utils
+package com.cosmotech.connector.adt.utils
 
 import com.azure.digitaltwins.core.BasicDigitalTwin
 import com.azure.digitaltwins.core.BasicRelationship
-import com.azure.digitaltwins.core.DigitalTwinsClient
 import com.cosmotech.connector.commons.pojo.CsvData
-import com.cosmotech.connector.constants.modelDefaultProperties
-import com.cosmotech.connector.constants.relationshipDefaultHeader
-import com.cosmotech.connector.extensions.getModelNameFromModelId
+import com.cosmotech.connector.adt.constants.modelDefaultProperties
+import com.cosmotech.connector.adt.constants.relationshipDefaultHeader
+import com.cosmotech.connector.adt.extensions.getModelNameFromModelId
+import com.cosmotech.connector.adt.pojos.DTDLModelInformation
 import com.fasterxml.jackson.databind.util.RawValue
 
 /**
@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.util.RawValue
 class AzureDigitalTwinsUtil {
 
     companion object Builder {
+
         /**
          * Construct a digital twin row to print into a CSV
          * @param defaultHeaderValues the default row values
@@ -24,12 +25,12 @@ class AzureDigitalTwinsUtil {
          */
         @JvmStatic
         fun constructDigitalTwinRowValue(
-            defaultHeaderValues: ArrayList<String>,
+            defaultHeaderValues: MutableList<String>,
             headers: MutableMap<String,String>,
             digitalTwin: BasicDigitalTwin
-        ): ArrayList<String> {
+        ): MutableList<String> {
 
-            val digitalTwinRow = ArrayList(defaultHeaderValues)
+            val digitalTwinRowValues = mutableListOf<String>()
 
             headers.forEach { (headerCellName, _) ->
                 if (!modelDefaultProperties.contains(headerCellName)) {
@@ -38,10 +39,11 @@ class AzureDigitalTwinsUtil {
                     if (specificCustomProperties is RawValue) {
                         specificCustomPropertiesValue = specificCustomProperties.rawValue().toString()
                     }
-                    digitalTwinRow.add(specificCustomPropertiesValue)
+                    digitalTwinRowValues.add(specificCustomPropertiesValue)
                 }
             }
-            return digitalTwinRow
+            digitalTwinRowValues.addAll(defaultHeaderValues)
+            return digitalTwinRowValues
         }
 
         /**
@@ -67,15 +69,14 @@ class AzureDigitalTwinsUtil {
          * @param digitalTwin a digital twin
          * @param digitalTwinsToExport digital twin data rows
          * @param digitalTwinHeaderNameAndType CSV digital twin header names
-         * @return the list of digital twin data rows
          */
         @JvmStatic
         fun constructDigitalTwinInformation(
             digitalTwin: BasicDigitalTwin,
             digitalTwinHeaderNameAndType: MutableMap<String,String>,
-            dtHeaderDefaultValues: ArrayList<String>,
+            dtHeaderDefaultValues: MutableList<String>,
             digitalTwinsToExport: MutableList<CsvData>
-        ) {
+        ): MutableList<CsvData> {
             val modelName = digitalTwin.metadata.modelId.getModelNameFromModelId()
             val csvData = digitalTwinsToExport.find { it.fileName == modelName }
             if (null != csvData) {
@@ -83,35 +84,31 @@ class AzureDigitalTwinsUtil {
                     constructDigitalTwinRowValue(dtHeaderDefaultValues, csvData.headerNameAndType, digitalTwin)
                 csvData.rows.add(rowValue)
             } else {
+                val sortedHeaders = digitalTwinHeaderNameAndType.toSortedMap()
                 val digitalTwinRowValue = constructDigitalTwinRowValue(
                     dtHeaderDefaultValues,
-                    digitalTwinHeaderNameAndType,
+                    sortedHeaders,
                     digitalTwin
                 )
                 val rows = mutableListOf<MutableList<String>>()
                 rows.add(digitalTwinRowValue)
-                digitalTwinsToExport.add(CsvData(modelName, digitalTwinHeaderNameAndType, rows))
+                digitalTwinsToExport.add(CsvData(modelName, sortedHeaders, rows))
             }
+            return digitalTwinsToExport
         }
 
         /**
-         * Construct and fill the Triple object containing all information for relations
+         * Construct and fill the list of CsvData containing all information for relations
          * @param client an ADT client
          * @param digitalTwin the digital twin that owns the relations
          * @param relationshipsToExport the Triple object to fill
          */
         @JvmStatic
         fun constructRelationshipInformation(
-            client: DigitalTwinsClient,
-            digitalTwin: BasicDigitalTwin,
+            relationships: Map<String, List<BasicRelationship>>,
             relationshipsToExport: MutableList<CsvData>
-        ) {
-            val currentRelationships =
-                client.listRelationships(digitalTwin.id, BasicRelationship::class.java).toList()
-
-            val relationshipGroupByName = currentRelationships.groupBy { it.name }
-
-            relationshipGroupByName.entries.forEach { (relationName, basicRelationships) ->
+        ): MutableList<CsvData> {
+            relationships.entries.forEach { (relationName, basicRelationships) ->
                 val relationInformation = relationshipsToExport.find { it.fileName == relationName }
                 if (null != relationInformation) {
                     basicRelationships.forEach { relation ->
@@ -132,6 +129,27 @@ class AzureDigitalTwinsUtil {
                     }
                 }
             }
+            return relationshipsToExport
+        }
+
+        /**
+         * Retrieve and Fill the missing properties for all extension model
+         * @param modelInformationList existing Digital Twin Model list
+         * @return the modelInformationList completed
+         */
+        @JvmStatic
+        fun retrievePropertiesFromExtendedModel(modelInformationList: MutableList<DTDLModelInformation>):MutableList<DTDLModelInformation> {
+            modelInformationList
+                .sortedBy { it.id }
+                .filter { it.isExtension }
+                .forEach { information ->
+                    val extendedModel =
+                        modelInformationList.find { it.id == information.extensionModelId }
+                    extendedModel?.properties?.forEach { (key, value) ->
+                        information.properties.putIfAbsent(key, value)
+                    }
+                }
+            return modelInformationList
         }
     }
 

@@ -1,4 +1,4 @@
-package com.cosmotech.connector.pojos
+package com.cosmotech.connector.adt.pojos
 
 /**
  * Represent a DTDL Model

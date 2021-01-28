@@ -1,9 +1,10 @@
-package com.cosmotech.connector.utils
+package com.cosmotech.connector.adt.utils
 
 import com.beust.klaxon.JsonObject
+import com.cosmotech.connector.adt.constants.*
 
 /**
- * class Utility for JSON object
+ * Utility class for JSON object
  */
 class JsonUtil {
 
@@ -16,9 +17,9 @@ class JsonUtil {
          */
         @JvmStatic
         fun readPropertiesName(jsonModel: JsonObject) =
-            jsonModel.array<JsonObject>("contents")
-                ?.filter { it.getOrDefault("@type", "")!! == "Property" }
-                ?.map { it["name"].toString() }
+            jsonModel.array<JsonObject>(DTDL_CONTENTS_KEY)
+                ?.filter { it.getOrDefault(DTDL_TYPE_KEY, "")!! == DTDL_PROPERTY_KEY }
+                ?.map { it[DTDL_NAME_KEY].toString() }
 
         /**
          * Read the 'contents' array of a model data
@@ -28,13 +29,13 @@ class JsonUtil {
         @JvmStatic
         fun readPropertiesNameAndType(jsonModel: JsonObject): MutableMap<String,String> {
             val result = mutableMapOf<String, String>()
-            jsonModel.array<JsonObject>("contents")
-                ?.filter { it.getOrDefault("@type", "")!! == "Property" }
+            jsonModel.array<JsonObject>(DTDL_CONTENTS_KEY)
+                ?.filter { it.getOrDefault(DTDL_TYPE_KEY, "")!! == DTDL_PROPERTY_KEY }
                 ?.forEach {
-                    if( it["schema"] !is JsonObject )
-                        result[it["name"].toString()] = it["schema"].toString()
+                    if( it[DTDL_SCHEMA_KEY] !is JsonObject )
+                        result[it[DTDL_NAME_KEY].toString()] = it[DTDL_SCHEMA_KEY].toString()
                     else
-                        result[it["name"].toString()] = "CompositeType"
+                        result[it[DTDL_NAME_KEY].toString()] = "CompositeType"
                 }
 
             return result
@@ -47,12 +48,14 @@ class JsonUtil {
          * If not returns a pair of {false,""}
          * @return a Pair(Boolean,String) containing minimal extension information
          */
-        @Suppress("UNCHECKED_CAST")
         @JvmStatic
-        fun isExtension(jsonModel: JsonObject):Pair<Boolean,String> =
-            if(jsonModel.containsKey("extends")) Pair(true,jsonModel["extends"].toString()) else Pair(false,"")
-
-
+        fun isExtension(jsonModel: JsonObject):Pair<Boolean,String> {
+            return if( jsonModel.containsKey(DTDL_EXTENDS_KEY) )
+                Pair(true,jsonModel[DTDL_EXTENDS_KEY].toString())
+            else
+                Pair(false,"")
+        }
+        
     }
 
 }

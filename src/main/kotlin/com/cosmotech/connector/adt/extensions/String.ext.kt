@@ -1,4 +1,4 @@
-package com.cosmotech.connector.extensions
+package com.cosmotech.connector.adt.extensions
 
 /**
  * @return Return a ADT model name from a ADT model id
@@ -6,6 +6,3 @@ package com.cosmotech.connector.extensions
 fun String.getModelNameFromModelId(): String {
     return this.split(":").last().split(";").first()
 }
-
-
-

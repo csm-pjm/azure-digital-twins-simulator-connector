@@ -1,6 +1,6 @@
 package com.cosmotech;
 
-import com.cosmotech.connector.AzureDigitalTwinsConnector;
+import com.cosmotech.connector.adt.AzureDigitalTwinsConnector;
 
 public class Application {
 

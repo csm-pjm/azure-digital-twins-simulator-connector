@@ -1,20 +1,20 @@
-package com.cosmotech.connector
+package com.cosmotech.connector.adt
 
 import com.azure.digitaltwins.core.*
 import com.azure.identity.DefaultAzureCredentialBuilder
 import com.beust.klaxon.Klaxon
 import com.cosmotech.connector.commons.Connector
 import com.cosmotech.connector.commons.pojo.CsvData
-import com.cosmotech.connector.constants.*
-import com.cosmotech.connector.pojos.DTDLModelInformation
-import com.cosmotech.connector.utils.AzureDigitalTwinsUtil
-import com.cosmotech.connector.utils.JsonUtil
+import com.cosmotech.connector.adt.constants.*
+import com.cosmotech.connector.adt.pojos.DTDLModelInformation
+import com.cosmotech.connector.adt.utils.AzureDigitalTwinsUtil
+import com.cosmotech.connector.adt.utils.JsonUtil
 import java.io.StringReader
 
 /**
  * Connector for Azure Digital Twin
  */
-class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>> {
+class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>,List<CsvData>> {
 
     private var adtInstanceUrl: String
     private var exportCsvFolderPath: String
@@ -33,7 +33,7 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>>
     }
 
 
-    override fun buildClient(): DigitalTwinsClient {
+    override fun createClient(): DigitalTwinsClient {
         return DigitalTwinsClientBuilder()
             .credential(
                 DefaultAzureCredentialBuilder().build()
@@ -43,12 +43,13 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>>
             .buildClient()
     }
 
-    override fun constructSimulatorData(client: DigitalTwinsClient): List<CsvData> {
+    override fun prepare(client: DigitalTwinsClient): List<CsvData> {
         val listModels = client.listModels()
         val dataToExport = mutableListOf<CsvData>()
-        val modelInformationList = mutableListOf<DTDLModelInformation>()
+        var modelInformationList = mutableListOf<DTDLModelInformation>()
         // Retrieve model Information
         listModels
+            .sortedBy { it.modelId }
             .forEach { modelData ->
                 // DTDL Model Information
                 val modelId = modelData.modelId
@@ -65,36 +66,21 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>>
                     DTDLModelInformation(modelId,extensionInfo.first,extensionInfo.second,propertiesModel,model)
                 )
             }
-        // Fill the missing properties for all extension model
-        modelInformationList
-            .filter { it.isExtension }
-            .forEach { information ->
-                val extendedModel = modelInformationList.find { it.id == information.extensionModelId }
-                extendedModel!!.properties.forEach {
-                        (key,value) -> information.properties.putIfAbsent(key,value)
-                }
-            }
 
-        val digitalTwinInstances = mutableListOf<BasicDigitalTwin>()
-        // Construct DT information list
-        modelInformationList.forEach { modelInformation ->
-            val digitalTwinInModel = client.query(
-                "SELECT * FROM DIGITALTWINS WHERE IS_OF_MODEL('${modelInformation.id}')",
-                BasicDigitalTwin::class.java
-            )
-            digitalTwinInModel.forEach {
-                digitalTwinInstances.add(it)
-            }
-        }
+        modelInformationList = AzureDigitalTwinsUtil.retrievePropertiesFromExtendedModel(modelInformationList)
+
+        val digitalTwinInstances = constructDigitalTwinInstances(modelInformationList, client)
+
         val digitalTwinInformation = mutableListOf<Pair<DTDLModelInformation,BasicDigitalTwin>>()
-        digitalTwinInstances.forEach { dtInstance ->
+        digitalTwinInstances
+            .sortedBy { it.id }
+            .forEach { dtInstance ->
             val modelMatched = modelInformationList.first { it.id == dtInstance.metadata.modelId }
             digitalTwinInformation.add(Pair(modelMatched,dtInstance))
         }
 
         digitalTwinInformation.forEach { (modelInformation,dtInstance) ->
-            val dtHeaderDefaultValues = ArrayList<String>()
-            dtHeaderDefaultValues.add(dtInstance.id)
+            val dtHeaderDefaultValues = mutableListOf<String>(dtInstance.id)
             AzureDigitalTwinsUtil
                 .constructDigitalTwinInformation(
                     dtInstance,
@@ -102,10 +88,16 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>>
                     dtHeaderDefaultValues,
                     dataToExport
                 )
+
+            val currentRelationships =
+                client
+                    .listRelationships(dtInstance.id, BasicRelationship::class.java)
+                    .toList()
+                    .groupBy { it.name }
+
             AzureDigitalTwinsUtil
                 .constructRelationshipInformation(
-                    client,
-                    dtInstance,
+                    currentRelationships,
                     dataToExport
                 )
         }
@@ -113,14 +105,39 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>>
         return dataToExport
     }
 
-    override fun process() {
-        val client = this.buildClient()
-        val processedData = this.constructSimulatorData(client)
-        processedData.forEach {
+    override fun process(): List<CsvData> {
+        val client = this.createClient()
+        val preparedData = this.prepare(client)
+        preparedData.forEach {
             // Uncomment it if you want to use the EXPORT_CSV_FILE_ABSOLUTE_PATH environment variable
-            //it.exportDirectory = exportCsvFolderPath
-            it.exportData()
+            it.exportDirectory = exportCsvFolderPath
+            it.writeFile()
         }
+        return preparedData
     }
 
+    /**
+     * Fetch and regroup all existing digital twin instances
+     * @param modelInformationList the existing DT model list
+     * @param client the Azure Digital Twin client
+     * @return the list of Digital Twin instances
+     */
+    private fun constructDigitalTwinInstances(
+        modelInformationList: MutableList<DTDLModelInformation>,
+        client: DigitalTwinsClient
+    ): MutableList<BasicDigitalTwin> {
+        val digitalTwinInstances = mutableListOf<BasicDigitalTwin>()
+        // Construct DT information list
+        modelInformationList.forEach { modelInformation ->
+            val digitalTwinInModel = client.query(
+                "SELECT * FROM DIGITALTWINS WHERE IS_OF_MODEL('${modelInformation.id}')",
+                BasicDigitalTwin::class.java
+            )
+            digitalTwinInModel
+                .forEach {
+                    digitalTwinInstances.add(it)
+                }
+        }
+        return digitalTwinInstances
+    }
 }
