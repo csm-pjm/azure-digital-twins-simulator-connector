@@ -35,3 +35,18 @@ mvn compile jib:dockerBuild
 ```
 
 For more information, see [Jib project Build]("https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin#build-your-image")
+
+#### How to run your image locally 
+
+```
+docker run \ 
+-v <<local_export_dir_path>>:/tmp \ 
+-e EXPORT_CSV_FILE_ABSOLUTE_PATH=/tmp/ \ 
+-e ADT_INSTANCE_URL=https://XXX.XXX.XXX.digitaltwins.azure.net \
+-e AZURE_TENANT_ID=<<azure_tenant_id>> \
+-e AZURE_CLIENT_ID=<<azure_client_id>> \
+-e AZURE_CLIENT_SECRET=<<azure_client_secret>> \
+<your_container_registry>/azure-digital-twins-simulator-connector
+```
+
+You can find all export files under the directory "local_export_dir_path" specified above
