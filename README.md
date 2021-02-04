@@ -1,15 +1,25 @@
-# Environment variables to set:
-## Azure Digital Twins
-- ADT_INSTANCE_URL : the url of the ADT targeted (can be found in the specific resource screen)
-- AZURE_TENANT_ID : the Azure Tenant id (can be found under the App registration screen)
+# Azure Digital Twins connector
+The aim of this project is to :
+ - read data from an ADT
+ - flatten these data in a list of CSVData Pojo defined in the library simulator-connector-commons
+ - Export Csv Files containing these data
+
+## Properties to overwrite :
+Here is the list of properties that should be changed (in ```META-INF/microprofile-config.properties``` file):
+- azure.client.id
+- azure.tenant.id
+- azure.client.secret
+- azure.digital.twins.url
+- export.csv.file.absolute.path
+
+If you want to overwrite these properties, you can write your own property values in the ```META-INF/microprofile-config.properties``` file, or set a property's system, or an environment variable named :
 - AZURE_CLIENT_ID : the Azure client id (can be found under the App registration screen)
+- AZURE_TENANT_ID : the Azure Tenant id (can be found under the App registration screen)
 - AZURE_CLIENT_SECRET : the app client secret (can be found under the App registration/certificates and secrets screen)
-##Common
+- AZURE_DIGITAL_TWINS_URL : the url of the ADT targeted (can be found in the specific resource screen)
 - EXPORT_CSV_FILE_ABSOLUTE_PATH : the absolute path to export all csv files (don't forget the / at the end)
 
-# Build your image
-
-Change the default container registry
+##Change the default container registry
 
 ```
   <to>

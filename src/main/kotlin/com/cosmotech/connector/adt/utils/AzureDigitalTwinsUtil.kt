@@ -2,12 +2,14 @@ package com.cosmotech.connector.adt.utils
 
 import com.azure.digitaltwins.core.BasicDigitalTwin
 import com.azure.digitaltwins.core.BasicRelationship
+import com.cosmotech.connector.adt.constants.*
+import com.cosmotech.connector.adt.constants.EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY
 import com.cosmotech.connector.commons.pojo.CsvData
-import com.cosmotech.connector.adt.constants.modelDefaultProperties
-import com.cosmotech.connector.adt.constants.relationshipDefaultHeader
 import com.cosmotech.connector.adt.extensions.getModelNameFromModelId
 import com.cosmotech.connector.adt.pojos.DTDLModelInformation
 import com.fasterxml.jackson.databind.util.RawValue
+import org.eclipse.microprofile.config.Config
+import org.eclipse.microprofile.config.ConfigProvider
 
 /**
  * Utility class to handle Azure Digital Twins objects
@@ -15,6 +17,8 @@ import com.fasterxml.jackson.databind.util.RawValue
 class AzureDigitalTwinsUtil {
 
     companion object Builder {
+
+        private val configuration: Config = ConfigProvider.getConfig()
 
         /**
          * Construct a digital twin row to print into a CSV
@@ -69,6 +73,7 @@ class AzureDigitalTwinsUtil {
          * @param digitalTwin a digital twin
          * @param digitalTwinsToExport digital twin data rows
          * @param digitalTwinHeaderNameAndType CSV digital twin header names
+         * @return the list of CsvData containing digital twins information
          */
         @JvmStatic
         fun constructDigitalTwinInformation(
@@ -99,9 +104,9 @@ class AzureDigitalTwinsUtil {
 
         /**
          * Construct and fill the list of CsvData containing all information for relations
-         * @param client an ADT client
-         * @param digitalTwin the digital twin that owns the relations
+         * @param relationships a map containing relationships information (relationName, basicRelationships)
          * @param relationshipsToExport the Triple object to fill
+         * @return the list of CsvData containing relationship information
          */
         @JvmStatic
         fun constructRelationshipInformation(
@@ -150,6 +155,36 @@ class AzureDigitalTwinsUtil {
                     }
                 }
             return modelInformationList
+        }
+
+        /** Get the ADT instance URL*/
+        @JvmStatic
+        fun getInstanceUrl(): String {
+            return configuration.getValue(AZURE_DIGITAL_TWINS_URL_KEY,String::class.java)
+        }
+
+        /** Get the ADT instance URL*/
+        @JvmStatic
+        fun getExportCsvFilesPath(): String {
+            return configuration.getValue(EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY,String::class.java)
+        }
+
+        /** Get the Azure Tenant Id*/
+        @JvmStatic
+        fun getAzureTenantId(): String {
+            return configuration.getValue(AZURE_TENANT_ID_KEY,String::class.java)
+        }
+
+        /** Get the Azure Client Id*/
+        @JvmStatic
+        fun getAzureClientId(): String {
+            return configuration.getValue(AZURE_CLIENT_ID_KEY,String::class.java)
+        }
+
+        /** Get the Azure Secret Id*/
+        @JvmStatic
+        fun getAzureClientSecret(): String {
+            return configuration.getValue(AZURE_CLIENT_SECRET_KEY,String::class.java)
         }
     }
 

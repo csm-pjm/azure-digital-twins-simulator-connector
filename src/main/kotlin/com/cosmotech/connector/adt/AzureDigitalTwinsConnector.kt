@@ -1,44 +1,31 @@
 package com.cosmotech.connector.adt
 
 import com.azure.digitaltwins.core.*
-import com.azure.identity.DefaultAzureCredentialBuilder
+import com.azure.identity.ClientSecretCredentialBuilder
 import com.beust.klaxon.Klaxon
-import com.cosmotech.connector.commons.Connector
-import com.cosmotech.connector.commons.pojo.CsvData
-import com.cosmotech.connector.adt.constants.*
+import com.cosmotech.connector.adt.constants.modelDefaultProperties
 import com.cosmotech.connector.adt.pojos.DTDLModelInformation
 import com.cosmotech.connector.adt.utils.AzureDigitalTwinsUtil
 import com.cosmotech.connector.adt.utils.JsonUtil
+import com.cosmotech.connector.commons.Connector
+import com.cosmotech.connector.commons.pojo.CsvData
 import java.io.StringReader
 
 /**
  * Connector for Azure Digital Twin
  */
-class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>,List<CsvData>> {
-
-    private var adtInstanceUrl: String
-    private var exportCsvFolderPath: String
-
-    init {
-        adtInstanceUrl = System.getenv()[ENVVAR_ADT_INSTANCE_URL].toString()
-        exportCsvFolderPath = System.getenv()[ENVVAR_ABSOLUTE_PATH_EXPORT_CSV_FILE].toString()
-    }
-
-    constructor(
-        adtInstanceUrlValue: String,
-        exportCsvFolderPathValue: String
-    ) : this() {
-        adtInstanceUrl = adtInstanceUrlValue
-        exportCsvFolderPath = exportCsvFolderPathValue
-    }
-
+class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,List<CsvData>> {
 
     override fun createClient(): DigitalTwinsClient {
         return DigitalTwinsClientBuilder()
             .credential(
-                DefaultAzureCredentialBuilder().build()
+                ClientSecretCredentialBuilder()
+                    .clientId(AzureDigitalTwinsUtil.getAzureClientId())
+                    .tenantId(AzureDigitalTwinsUtil.getAzureTenantId())
+                    .clientSecret(AzureDigitalTwinsUtil.getAzureClientSecret())
+                    .build()
             )
-            .endpoint(adtInstanceUrl)
+            .endpoint(AzureDigitalTwinsUtil.getInstanceUrl())
             .serviceVersion(DigitalTwinsServiceVersion.getLatest())
             .buildClient()
     }
@@ -110,7 +97,7 @@ class AzureDigitalTwinsConnector() : Connector<DigitalTwinsClient,List<CsvData>,
         val preparedData = this.prepare(client)
         preparedData.forEach {
             // Uncomment it if you want to use the EXPORT_CSV_FILE_ABSOLUTE_PATH environment variable
-            it.exportDirectory = exportCsvFolderPath
+            it.exportDirectory = AzureDigitalTwinsUtil.getExportCsvFilesPath()
             it.writeFile()
         }
         return preparedData

@@ -4,15 +4,20 @@ package com.cosmotech.connector.adt.constants
 // ## Azure Digital Twins
 // ############################
 
-/**
- * Environment variable in which the ADT endpoint is stored
- */
-const val ENVVAR_ADT_INSTANCE_URL = "ADT_INSTANCE_URL"
+/** Environment variable in which the Azure tenant is stored */
+const val AZURE_TENANT_ID_KEY = "azure.tenant.id"
 
-/**
- * Environment variable in which the absolute export path for CSVs is stored
- */
-const val ENVVAR_ABSOLUTE_PATH_EXPORT_CSV_FILE = "EXPORT_CSV_FILE_ABSOLUTE_PATH"
+/** Environment variable in which the Azure tenant is stored */
+const val AZURE_CLIENT_ID_KEY = "azure.client.id"
+
+/** Environment variable in which the Azure client secret is stored */
+const val AZURE_CLIENT_SECRET_KEY = "azure.client.secret"
+
+/** Environment variable in which the ADT endpoint is stored */
+const val AZURE_DIGITAL_TWINS_URL_KEY = "azure.digital.twins.url"
+
+/** Environment variable in which the absolute export path for CSVs is stored */
+const val EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY = "export.csv.file.absolute.path"
 
 /**
  * Default header cell name for digital twins
