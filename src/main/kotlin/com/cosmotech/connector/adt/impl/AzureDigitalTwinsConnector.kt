@@ -1,4 +1,4 @@
-package com.cosmotech.connector.adt
+package com.cosmotech.connector.adt.impl
 
 import com.azure.digitaltwins.core.*
 import com.azure.identity.ClientSecretCredentialBuilder
@@ -10,13 +10,20 @@ import com.cosmotech.connector.adt.utils.JsonUtil
 import com.cosmotech.connector.commons.Connector
 import com.cosmotech.connector.commons.pojo.CsvData
 import java.io.StringReader
+import java.util.logging.Logger
 
 /**
  * Connector for Azure Digital Twin
  */
 class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,List<CsvData>> {
 
+
+    companion object {
+        val LOGGER = Logger.getLogger(AzureDigitalTwinsConnector::class.java.name)
+    }
+
     override fun createClient(): DigitalTwinsClient {
+        LOGGER.info("Create Digital Twins Client")
         return DigitalTwinsClientBuilder()
             .credential(
                 ClientSecretCredentialBuilder()
@@ -31,6 +38,7 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
     }
 
     override fun prepare(client: DigitalTwinsClient): List<CsvData> {
+        LOGGER.info("Start preparing Digital Twins Data")
         val listModels = client.listModels()
         val dataToExport = mutableListOf<CsvData>()
         var modelInformationList = mutableListOf<DTDLModelInformation>()
@@ -96,6 +104,10 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
         val client = this.createClient()
         val preparedData = this.prepare(client)
         preparedData.forEach {
+            LOGGER.info(" Exported Digital Twins Data \n" +
+                    "Short Model: ${it.fileName} , " +
+                    "CSV Headers: ${it.headerNameAndType} , " +
+                    "rows : ${it.rows}")
             // Uncomment it if you want to use the EXPORT_CSV_FILE_ABSOLUTE_PATH environment variable
             it.exportDirectory = AzureDigitalTwinsUtil.getExportCsvFilesPath()
             it.writeFile()

@@ -3,10 +3,9 @@ package com.cosmotech.connector.adt.utils
 import com.azure.digitaltwins.core.BasicDigitalTwin
 import com.azure.digitaltwins.core.BasicRelationship
 import com.cosmotech.connector.adt.constants.*
-import com.cosmotech.connector.adt.constants.EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY
-import com.cosmotech.connector.commons.pojo.CsvData
 import com.cosmotech.connector.adt.extensions.getModelNameFromModelId
 import com.cosmotech.connector.adt.pojos.DTDLModelInformation
+import com.cosmotech.connector.commons.pojo.CsvData
 import com.fasterxml.jackson.databind.util.RawValue
 import org.eclipse.microprofile.config.Config
 import org.eclipse.microprofile.config.ConfigProvider
