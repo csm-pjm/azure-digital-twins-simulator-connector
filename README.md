@@ -19,6 +19,13 @@ If you want to overwrite these properties, you can write your own property value
 - AZURE_DIGITAL_TWINS_URL : the url of the ADT targeted (can be found in the specific resource screen)
 - EXPORT_CSV_FILE_ABSOLUTE_PATH : the absolute path to export all csv files (don't forget the / at the end)
 
+## Application insights
+The connector comes with a javaagent for adding connector's outputs to an application insights.
+
+Create an application insight through portal.azure and set the connection string into the file ```/src/main/jib/applicationinsights.json```
+
+![Application Insights](README/ApplicationInsights.png)
+
 ##Change the default container registry
 
 ```
@@ -52,7 +59,7 @@ For more information, see [Jib project Build]("https://github.com/GoogleContaine
 docker run \ 
 -v <<local_export_dir_path>>:/tmp \ 
 -e EXPORT_CSV_FILE_ABSOLUTE_PATH=/tmp/ \ 
--e ADT_INSTANCE_URL=https://XXX.XXX.XXX.digitaltwins.azure.net \
+-e AZURE_DIGITAL_TWINS_URL=https://XXX.XXX.XXX.digitaltwins.azure.net \
 -e AZURE_TENANT_ID=<<azure_tenant_id>> \
 -e AZURE_CLIENT_ID=<<azure_client_id>> \
 -e AZURE_CLIENT_SECRET=<<azure_client_secret>> \

@@ -1,0 +1,6 @@
+{
+  "connectionString": "<<applicationinsights_connection_string>>",
+  "role": {
+    "name": "Azure Digital Twins Simulator Connector"
+  }
+}

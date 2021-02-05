@@ -86,7 +86,7 @@
       <version>${com.beust.klaxon.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.smallrye</groupId>
+      <groupId>io.smallrye.config</groupId>
       <artifactId>smallrye-config</artifactId>
       <version>${smallrye-config.version}</version>
     </dependency>
@@ -168,6 +168,11 @@
           <to>
             <image>csmphoenix.azurecr.io/azure-digital-twins-simulator-connector</image>
           </to>
+          <container>
+            <jvmFlags>
+              <jvmFlag>-javaagent:/applicationinsights-agent-3.0.2.jar</jvmFlag>
+            </jvmFlags>
+          </container>
         </configuration>
       </plugin>
     </plugins>
