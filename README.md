@@ -72,15 +72,6 @@ You can find all export files under the directory "local_export_dir_path" specif
 ## How-to
 
 ```
-<dependency>
-  <groupId>com.cosmotech</groupId>
-  <artifactId>azure-digital-twins-simulator-connector</artifactId>
-  <version>1.0-SNAPSHOT</version>
-</dependency>
-
-```
-or 
-```
     <dependency>
       <groupId>com.github.Cosmo-Tech</groupId>
       <artifactId>azure-digital-twins-simulator-connector</artifactId>
