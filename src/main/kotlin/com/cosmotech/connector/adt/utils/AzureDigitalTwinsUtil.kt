@@ -119,12 +119,12 @@ class AzureDigitalTwinsUtil {
                         relationInformation.rows.add(constructRelationshipRowValue(relation))
                     }
                 } else {
-                    val relationshipHeaderName = HashMap(relationshipDefaultHeader)
+                    val relationshipHeaderName = relationshipDefaultHeader.toMutableMap()
                     if (basicRelationships.isNotEmpty()) {
                         //TODO Handle relationship properties correctly
-                        /*basicRelationships[0].properties.keys.forEach {
+                        basicRelationships[0].properties.keys.forEach {
                             relationshipHeaderName[it] = "string"
-                        }*/
+                        }
                         val rows = mutableListOf<MutableList<String>>()
                         basicRelationships.forEach { relation ->
                             rows.add(constructRelationshipRowValue(relation))
