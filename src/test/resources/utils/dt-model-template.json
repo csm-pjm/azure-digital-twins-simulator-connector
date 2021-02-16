@@ -55,6 +55,43 @@
           }
         ]
       }
+    },
+    {
+      "@type": "Property",
+      "name": "Demands",
+      "description": "Map of the multiple demands of the stock",
+      "schema": {
+        "@type": "Map",
+        "mapKey": {
+          "name": "TimeStep",
+          "description": "Time step of a given demand",
+          "schema": "string"
+        },
+        "mapValue": {
+          "name": "DemandStruct",
+          "description": "Data associated to the demand",
+          "schema": {
+            "@type": "Object",
+            "fields": [
+              {
+                "name": "Demand",
+                "description": "Number of part needed to serve in full the given demand",
+                "schema": "double"
+              },
+              {
+                "name": "DemandRelativeUncertainty",
+                "description": "Ratio of uncertainty of the demand",
+                "schema": "double"
+              },
+              {
+                "name": "Weight",
+                "description": "Weight associated to the given demand",
+                "schema": "double"
+              }
+            ]
+          }
+        }
+      }
     }
   ]
 }

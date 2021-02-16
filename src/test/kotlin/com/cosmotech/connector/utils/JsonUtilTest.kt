@@ -55,7 +55,8 @@ class JsonUtilTest: AbstractUnitTest() {
                 "StartingDate",
                 "ManageBacklogQuantities",
                 "EnforceProductionPlan",
-                "OptimizationObjective"
+                "OptimizationObjective",
+                "Demands"
             ),
             "Check that the properties list is the expected one"
         )
@@ -73,7 +74,8 @@ class JsonUtilTest: AbstractUnitTest() {
                 "StartingDate" to "dateTime",
                 "ManageBacklogQuantities" to "boolean",
                 "EnforceProductionPlan" to "boolean",
-                "OptimizationObjective" to "CompositeType"
+                "OptimizationObjective" to "CompositeType",
+                "Demands" to "CompositeType"
             ),
             "Check that the list of Pair if the expected one"
         )

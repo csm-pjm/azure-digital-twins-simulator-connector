@@ -7,6 +7,7 @@ import com.cosmotech.connector.adt.extensions.getModelNameFromModelId
 import com.cosmotech.connector.adt.pojos.DTDLModelInformation
 import com.cosmotech.connector.commons.pojo.CsvData
 import com.fasterxml.jackson.databind.util.RawValue
+import net.minidev.json.JSONObject
 import org.eclipse.microprofile.config.Config
 import org.eclipse.microprofile.config.ConfigProvider
 
@@ -37,11 +38,18 @@ class AzureDigitalTwinsUtil {
 
             headers.forEach { (headerCellName, _) ->
                 if (!modelDefaultProperties.contains(headerCellName)) {
-                    val specificCustomProperties = digitalTwin.contents[headerCellName]
-                    var specificCustomPropertiesValue = specificCustomProperties.toString()
-                    if (specificCustomProperties is RawValue) {
-                        specificCustomPropertiesValue = specificCustomProperties.rawValue().toString()
-                    }
+                    val specificCustomPropertiesValue : String =
+                        when (val specificCustomProperties = digitalTwin.contents[headerCellName]) {
+                            is Map<*, *> -> {
+                                JSONObject(specificCustomProperties as MutableMap<String, *>?).toJSONString()
+                            }
+                            is RawValue -> {
+                                specificCustomProperties.rawValue().toString()
+                            }
+                            else -> {
+                                specificCustomProperties.toString()
+                            }
+                        }
                     digitalTwinRowValues.add(specificCustomPropertiesValue)
                 }
             }
@@ -62,7 +70,19 @@ class AzureDigitalTwinsUtil {
             rowValues.add(relation.targetId)
             rowValues.add(relation.name)
             relation.properties.values.forEach {
-                rowValues.add(it?.toString() ?: "")
+                val stringValue : String =
+                    when (it) {
+                        is Map<*, *> -> {
+                            JSONObject(it as MutableMap<String, *>?).toJSONString()
+                        }
+                        is RawValue -> {
+                            it.rawValue().toString()
+                        }
+                        else -> {
+                            it.toString()
+                        }
+                    }
+                rowValues.add(stringValue)
             }
             return rowValues
         }

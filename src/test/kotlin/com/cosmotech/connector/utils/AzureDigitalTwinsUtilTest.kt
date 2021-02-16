@@ -18,6 +18,14 @@ import kotlin.test.assertTrue
 
 class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
 
+    private val demandJsonString = "{\"34\":{\"Demand\":4000.0,\"Weight\":1.0,\"DemandRelativeUncertainty\":0.0},\"76\":{\"Demand\":9000.0,\"Weight\":1.0,\"DemandRelativeUncertainty\":0.0},\"118\":{\"Demand\":52000.0,\"Weight\":1.0,\"DemandRelativeUncertainty\":0.0}}"
+
+    private val demandJsonLinkedHashMap = linkedMapOf(
+        118 to Demand(52000.0,0.0,1.0),
+        76 to Demand(9000.0,0.0,1.0),
+        34 to Demand(4000.0,0.0,1.0)
+    )
+
     private val defaultDigitalTwinIdTest = "DigitalTwinIdTest"
     private val defaultHeaderValues = mutableListOf(defaultDigitalTwinIdTest)
     private val defaultHeaderNameAndType=
@@ -27,6 +35,7 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
             "MaximalStock" to "integer",
             "IsProportionType" to "boolean",
             "StartingDate" to "dateTime",
+            "Demands" to "CompositeType",
             "_id" to "string")
     private val defaultHeaderNameAndTypeForRelationship=
         mutableMapOf(
@@ -39,6 +48,7 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
         "123456789",
         "true",
         "2020-09-01T00:00:00+00:00",
+        demandJsonString,
         defaultDigitalTwinIdTest
     )
     private val dtWithExtendDTDLModel: String =
@@ -205,7 +215,8 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
                 "CurrentStock" to 2.7182818284,
                 "MaximalStock" to 123456789,
                 "IsProportionType" to true,
-                "StartingDate" to "2020-09-01T00:00:00+00:00")
+                "StartingDate" to "2020-09-01T00:00:00+00:00",
+                "Demands" to demandJsonLinkedHashMap)
 
         val digitalTwinForTest =
             BasicDigitalTwin(defaultDigitalTwinIdTest)
@@ -260,4 +271,22 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
     }
 
 
+}
+
+/** Inline Class to test management of LinkedHashMap as a property of a Digital Twin */
+open class Demand() {
+
+    var Demand:Double = 0.0
+    var DemandRelativeUncertainty:Double = 0.0
+    var Weight:Double = 0.0
+
+    constructor(
+        Demand: Double,
+        DemandRelativeUncertainty: Double,
+        Weight: Double
+    ) : this() {
+        this.Demand = Demand
+        this.DemandRelativeUncertainty = DemandRelativeUncertainty
+        this.Weight = Weight
+    }
 }
