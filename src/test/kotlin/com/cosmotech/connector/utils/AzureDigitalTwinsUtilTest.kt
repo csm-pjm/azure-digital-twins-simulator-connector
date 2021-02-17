@@ -26,6 +26,13 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
         34 to Demand(4000.0,0.0,1.0)
     )
 
+    private val defaultRelationshipProperties = mutableMapOf<String,Any>(
+        "Name" to "FactoryA_FactoryB_HT_carter_Product2",
+        "Duration" to 8,
+        "TransportCosts" to linkedMapOf<Int,Any>(0 to 10.0),
+        "CustomsCosts" to linkedMapOf<Int,Any>(0 to 0.25)
+    )
+
     private val defaultDigitalTwinIdTest = "DigitalTwinIdTest"
     private val defaultHeaderValues = mutableListOf(defaultDigitalTwinIdTest)
     private val defaultHeaderNameAndType=
@@ -41,7 +48,12 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
         mutableMapOf(
             "name" to "string",
             "source" to "string",
-            "target" to "string")
+            "target" to "string",
+            "Name" to "string",
+            "Duration" to "string",
+            "CustomsCosts" to "string",
+            "TransportCosts" to "string")
+
     private val defaultRowValue = listOf(
         "StockName",
         "2.7182818284",
@@ -82,13 +94,18 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
                 createBasicRelationshipForTest(
                     defaultDigitalTwinIdTest,
                     "targetDigitalTwinId",
-                    "relationshipName"
+                    "relationshipName",
+                    defaultRelationshipProperties
                 )
             )
         assertEquals(
             listOf(defaultDigitalTwinIdTest,
                 "targetDigitalTwinId",
-                "relationshipName")
+                "relationshipName",
+                "8",
+                "{\"0\":0.25}",
+                "{\"0\":10.0}",
+                "FactoryA_FactoryB_HT_carter_Product2")
             ,rowValue
         )
     }
@@ -114,9 +131,10 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
     @Test
     fun test_constructRelationshipInformation() {
         val relationships = mapOf<String, List<BasicRelationship>>(
-            "contains_DTB" to createBasicRelationshipsForTest("DTA","DTB","contains_DTB",5),
-            "contains_DTC" to createBasicRelationshipsForTest("DTB","DTC","contains_DTC",4),
-            "ToDTA" to createBasicRelationshipsForTest("DTC","DTA","ToDTA",8)
+            "contains_DTB" to createBasicRelationshipsForTest("DTA","DTB","contains_DTB",5,defaultRelationshipProperties),
+            "contains_DTC" to createBasicRelationshipsForTest("DTB","DTC","contains_DTC",4,defaultRelationshipProperties),
+            "ToDTA" to createBasicRelationshipsForTest("DTC","DTA","ToDTA",8,defaultRelationshipProperties),
+            "Transport" to createBasicRelationshipsForTest("DTC","DTD","extended_Relation",2,defaultRelationshipProperties)
         )
 
         val dataToExport = AzureDigitalTwinsUtil
@@ -125,7 +143,7 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
                 mutableListOf()
             )
         assertNotNull(dataToExport)
-        assertEquals(3,dataToExport.size)
+        assertEquals(4,dataToExport.size)
         for (csvData in dataToExport)
             assertEquals(defaultHeaderNameAndTypeForRelationship,csvData.headerNameAndType)
 
@@ -133,21 +151,28 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
         val containsDTBRows = dataToExport[0].rows
         assertEquals(5, containsDTBRows.size)
         for (i in 0 until 5) {
-            assertTrue(containsDTBRows.contains(listOf("DTA$i","DTB$i","contains_DTB$i")))
+            assertTrue(containsDTBRows.contains(listOf("DTA$i","DTB$i","contains_DTB$i","8","{\"0\":0.25}","{\"0\":10.0}","FactoryA_FactoryB_HT_carter_Product2")))
         }
 
         assertEquals("contains_DTC",dataToExport[1].fileName)
         val containsDTCRows = dataToExport[1].rows
         assertEquals(4, containsDTCRows.size)
         for (i in 0 until 4) {
-            assertTrue(containsDTCRows.contains(listOf("DTB$i","DTC$i","contains_DTC$i")))
+            assertTrue(containsDTCRows.contains(listOf("DTB$i","DTC$i","contains_DTC$i","8","{\"0\":0.25}","{\"0\":10.0}","FactoryA_FactoryB_HT_carter_Product2")))
         }
 
         assertEquals("ToDTA",dataToExport[2].fileName)
         val toDTARows = dataToExport[2].rows
         assertEquals(8, toDTARows.size)
-        for (i in 0 until 4) {
-            assertTrue(toDTARows.contains(listOf("DTC$i","DTA$i","ToDTA$i")))
+        for (i in 0 until 8) {
+            assertTrue(toDTARows.contains(listOf("DTC$i","DTA$i","ToDTA$i","8","{\"0\":0.25}","{\"0\":10.0}","FactoryA_FactoryB_HT_carter_Product2")))
+        }
+
+        assertEquals("Transport",dataToExport[3].fileName)
+        val transportRows = dataToExport[3].rows
+        assertEquals(2, transportRows.size)
+        for (i in 0 until 2) {
+            assertTrue(transportRows.contains(listOf("DTC$i","DTD$i","extended_Relation$i","8","{\"0\":0.25}","{\"0\":10.0}","FactoryA_FactoryB_HT_carter_Product2")))
         }
 
     }
@@ -243,17 +268,18 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
         return result
     }
 
-    // TODO handle properties on relationship
-    private fun createBasicRelationshipForTest(source:String,target:String,name:String): BasicRelationship {
-        return BasicRelationship(
-                UUID.randomUUID().toString(),
-                source,
-                target,
-                name)
+    private fun createBasicRelationshipForTest(source:String,target:String,name:String,properties:MutableMap<String,Any>?): BasicRelationship {
+        val basicRelationship = BasicRelationship(
+            UUID.randomUUID().toString(),
+            source,
+            target,
+            name
+        )
+        properties?.forEach{ (key, value) -> basicRelationship.addProperty(key,value)}
+        return basicRelationship
     }
 
-    // TODO handle properties on relationship
-    private fun createBasicRelationshipsForTest(source:String,target:String,name:String,number:Int): MutableList<BasicRelationship> {
+    private fun createBasicRelationshipsForTest(source:String,target:String,name:String,number:Int,properties:MutableMap<String,Any>?): MutableList<BasicRelationship> {
         if (number < 0)
             throw IllegalArgumentException("number should be greater than 0")
 
@@ -263,7 +289,8 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
                 createBasicRelationshipForTest(
                     source.plus(i),
                     target.plus(i),
-                    name.plus(i))
+                    name.plus(i),
+                    properties)
             )
          }
 

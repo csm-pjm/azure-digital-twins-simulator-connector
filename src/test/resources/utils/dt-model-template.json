@@ -92,6 +92,59 @@
           }
         }
       }
+    },
+    {
+      "@type": "Relationship",
+      "name": "Transport",
+      "description": "Represent the move of part between 2 stocks without a transformation, but with a time difference.",
+      "target": "dtmi:com:cosmotech:supplychain:Stock;1",
+      "maxMultiplicity": 1,
+      "properties": [
+        {
+          "@type": "Property",
+          "name": "Name",
+          "description": "Name of the transport",
+          "schema": "string"
+        },
+        {
+          "@type": "Property",
+          "name": "Duration",
+          "description": "Duration in time step of the transport",
+          "schema": "integer"
+        },
+        {
+          "@type": "Property",
+          "name": "InitialTransport",
+          "description": "Initial content of the transport",
+          "schema": {
+            "@type": "Map",
+            "mapKey": {
+              "name": "TimeStep",
+              "description": "Current number of time step the associated transported parts have passed int the transport",
+              "schema": "string"
+            },
+            "mapValue": {
+              "name": "InitialTransportStruct",
+              "description": "Data describing a transported quantity of parts",
+              "schema": {
+                "@type": "Object",
+                "fields": [
+                  {
+                    "name": "Quantity",
+                    "description": "The quantity of transported parts at a given time step",
+                    "schema": "double"
+                  },
+                  {
+                    "name": "Value",
+                    "description": "The value of the transported parts at a given time step",
+                    "schema": "double"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
