@@ -103,13 +103,15 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
     override fun process(): List<CsvData> {
         val client = this.createClient()
         val preparedData = this.prepare(client)
+        val exportCsvFilesPath = AzureDigitalTwinsUtil.getExportCsvFilesPath()
         preparedData.forEach {
             LOGGER.info(" Exported Digital Twins Data \n" +
                     "Short Model: ${it.fileName} , " +
                     "CSV Headers: ${it.headerNameAndType} , " +
                     "rows : ${it.rows}")
-            // Uncomment it if you want to use the EXPORT_CSV_FILE_ABSOLUTE_PATH environment variable
-            it.exportDirectory = AzureDigitalTwinsUtil.getExportCsvFilesPath()
+            if (exportCsvFilesPath?.isPresent == true) {
+                it.exportDirectory = exportCsvFilesPath.get()
+            }
             it.writeFile()
         }
         return preparedData

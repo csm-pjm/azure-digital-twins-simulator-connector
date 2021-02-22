@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.util.RawValue
 import net.minidev.json.JSONObject
 import org.eclipse.microprofile.config.Config
 import org.eclipse.microprofile.config.ConfigProvider
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Utility class to handle Azure Digital Twins objects
@@ -184,8 +186,8 @@ class AzureDigitalTwinsUtil {
 
         /** Get the ADT instance URL*/
         @JvmStatic
-        fun getExportCsvFilesPath(): String {
-            return configuration.getValue(EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY,String::class.java)
+        fun getExportCsvFilesPath(): Optional<String>? {
+            return configuration.getOptionalValue(EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY,String::class.java)
         }
 
         /** Get the Azure Tenant Id*/
