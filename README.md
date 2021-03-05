@@ -6,18 +6,33 @@ The aim of this project is to :
 
 ## Properties to overwrite :
 Here is the list of properties that should be changed (in ```META-INF/microprofile-config.properties``` file):
-- azure.client.id
-- azure.tenant.id
-- azure.client.secret
-- azure.digital.twins.url
-- export.csv.file.absolute.path
+- **azure.client.id**
+- **azure.tenant.id**
+- **azure.client.secret**
+- **azure.digital.twins.url**
+- **export.csv.file.absolute.path**
 
 If you want to overwrite these properties, you can write your own property values in the ```META-INF/microprofile-config.properties``` file, or set a property's system, or an environment variable named :
-- AZURE_CLIENT_ID : the Azure client id (can be found under the App registration screen)
-- AZURE_TENANT_ID : the Azure Tenant id (can be found under the App registration screen)
-- AZURE_CLIENT_SECRET : the app client secret (can be found under the App registration/certificates and secrets screen)
-- AZURE_DIGITAL_TWINS_URL : the url of the ADT targeted (can be found in the specific resource screen)
-- EXPORT_CSV_FILE_ABSOLUTE_PATH : the absolute path to export all csv files (don't forget the / at the end)
+- **AZURE_CLIENT_ID** : the Azure client id (can be found under the App registration screen)
+- **AZURE_TENANT_ID** : the Azure Tenant id (can be found under the App registration screen)
+- **AZURE_CLIENT_SECRET** : the app client secret (can be found under the App registration/certificates and secrets screen)
+- **AZURE_DIGITAL_TWINS_URL** : the url of the ADT targeted (can be found in the specific resource screen)
+- **EXPORT_CSV_FILE_ABSOLUTE_PATH** : the absolute path to export all csv files (don't forget the / at the end)
+
+## Log level
+Default log level defined is "info".
+We use the logging API [log4j2](https://logging.apache.org/log4j/2.x/manual/index.html).
+You can change the log threshold by setting an environment variable named: **LOG_THRESHOLD_LEVEL**.
+Log levels used for identifying the severity of an event. Log levels are organized from most specific to least:
+- OFF (most specific, no logging)
+- FATAL (most specific, little data)
+- ERROR
+- WARN
+- INFO
+- DEBUG
+- TRACE (least specific, a lot of data)
+- ALL (least specific, all data)
+
 
 ## Application insights
 The connector comes with a javaagent for adding connector's outputs to an application insights.

@@ -9,17 +9,16 @@ import com.cosmotech.connector.adt.utils.AzureDigitalTwinsUtil
 import com.cosmotech.connector.adt.utils.JsonUtil
 import com.cosmotech.connector.commons.Connector
 import com.cosmotech.connector.commons.pojo.CsvData
+import org.apache.logging.log4j.LogManager
 import java.io.StringReader
-import java.util.logging.Logger
 
 /**
  * Connector for Azure Digital Twin
  */
 class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,List<CsvData>> {
 
-
     companion object {
-        val LOGGER = Logger.getLogger(AzureDigitalTwinsConnector::class.java.name)
+        val LOGGER = LogManager.getLogger(AzureDigitalTwinsConnector::class.java.name)
     }
 
     override fun createClient(): DigitalTwinsClient {
@@ -104,9 +103,9 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
         val client = this.createClient()
         val preparedData = this.prepare(client)
         val exportCsvFilesPath = AzureDigitalTwinsUtil.getExportCsvFilesPath()
+        LOGGER.info("Exported Digital Twins Data")
         preparedData.forEach {
-            LOGGER.info(" Exported Digital Twins Data \n" +
-                    "Short Model: ${it.fileName} , " +
+            LOGGER.debug("Short Model: ${it.fileName} , " +
                     "CSV Headers: ${it.headerNameAndType} , " +
                     "rows : ${it.rows}")
             if (exportCsvFilesPath?.isPresent == true) {
