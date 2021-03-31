@@ -1,3 +1,6 @@
+// copyright (c) cosmo tech corporation.
+// licensed under the mit license.
+
 package com.cosmotech.connector.adt.utils
 
 import com.beust.klaxon.JsonObject
