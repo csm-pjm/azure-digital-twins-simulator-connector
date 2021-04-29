@@ -6,7 +6,7 @@
 
   <groupId>com.cosmotech</groupId>
   <artifactId>azure-digital-twins-simulator-connector</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -178,6 +178,10 @@
           </from>
           <to>
             <image>csmphoenix.azurecr.io/azure-digital-twins-simulator-connector</image>
+            <tags>
+              <tag>latest</tag>
+              <tag>${project.version}</tag>
+            </tags>
           </to>
           <container>
             <jvmFlags>
