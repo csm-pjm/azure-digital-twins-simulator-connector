@@ -20,7 +20,7 @@ const val AZURE_CLIENT_SECRET_KEY = "azure.client.secret"
 const val AZURE_DIGITAL_TWINS_URL_KEY = "azure.digital.twins.url"
 
 /** Environment variable in which the absolute export path for CSVs is stored */
-const val EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY = "export.csv.file.absolute.path"
+const val CSM_FETCH_ABSOLUTE_PATH = "csm.fetch.absolute.path"
 
 /**
  * Default header cell name for digital twins

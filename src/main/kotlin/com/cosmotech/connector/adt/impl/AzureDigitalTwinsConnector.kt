@@ -112,7 +112,11 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
                     "CSV Headers: ${it.headerNameAndType} , " +
                     "rows : ${it.rows}")
             if (exportCsvFilesPath?.isPresent == true) {
-                it.exportDirectory = exportCsvFilesPath.get()
+              var exportDirectory = exportCsvFilesPath.get()
+              if (!exportDirectory.endsWith("/") ) {
+                  exportDirectory = exportDirectory.plus("/")
+              }
+              it.exportDirectory = exportDirectory
             }
             it.writeFile()
         }

@@ -190,7 +190,7 @@ class AzureDigitalTwinsUtil {
         /** Get the ADT instance URL*/
         @JvmStatic
         fun getExportCsvFilesPath(): Optional<String>? {
-            return configuration.getOptionalValue(EXPORT_CSV_FILE_ABSOLUTE_PATH_KEY,String::class.java)
+            return configuration.getOptionalValue(CSM_FETCH_ABSOLUTE_PATH,String::class.java)
         }
 
         /** Get the Azure Tenant Id*/
