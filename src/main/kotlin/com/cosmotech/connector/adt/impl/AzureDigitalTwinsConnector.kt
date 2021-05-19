@@ -14,6 +14,8 @@ import com.cosmotech.connector.commons.Connector
 import com.cosmotech.connector.commons.pojo.CsvData
 import org.apache.logging.log4j.LogManager
 import java.io.StringReader
+import java.io.File
+
 
 /**
  * Connector for Azure Digital Twin
@@ -118,6 +120,8 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
               }
               it.exportDirectory = exportDirectory
             }
+            val directory = File(it.exportDirectory)
+            directory.mkdirs()
             it.writeFile()
         }
         return preparedData

@@ -5,6 +5,9 @@ The aim of this project is to :
  - Export Csv Files containing these data
 
 ## Change logs
+### Version 2.0.1
+* Fix an issue with unexisting target directories
+* Added Cosmo Tech Digital Twins Platform manifest for the connector in platform/Connector.yaml
 ### Version 2.0.0
 * Change of target directory property and Env var
 export.csv.file.absolute.path -> csm.fetch.absolute.path
@@ -98,8 +101,8 @@ mvn fizzed-watcher:run
 
 ```
 docker run \ 
--v <<local_export_dir_path>>:/tmp \ 
--e CSM_FETCH_ABSOLUTE_PATH=/tmp/ \ 
+-v <<local_export_dir_path>>:/tmp \
+-e CSM_FETCH_ABSOLUTE_PATH=/tmp/ \
 -e AZURE_DIGITAL_TWINS_URL=https://XXX.XXX.XXX.digitaltwins.azure.net \
 -e AZURE_TENANT_ID=<<azure_tenant_id>> \
 -e AZURE_CLIENT_ID=<<azure_client_id>> \
