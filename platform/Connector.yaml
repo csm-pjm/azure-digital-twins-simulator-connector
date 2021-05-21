@@ -1,7 +1,7 @@
 key: ADT Connector
 name: ADT Connector
 description: Connector for Azure Digital Twins. Read ADT and write the data in CSV for a ScenarioRun
-repository: azure-digital-twins-simulator-connector
+repository: cosmo-tech/azure-digital-twins-simulator-connector
 version: "2.0.1"
 tags:
   - ADT
