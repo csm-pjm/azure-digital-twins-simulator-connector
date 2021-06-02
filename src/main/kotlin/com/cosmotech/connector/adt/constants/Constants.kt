@@ -24,9 +24,8 @@ const val CSM_FETCH_ABSOLUTE_PATH = "csm.fetch.absolute.path"
 
 /**
  * Default header cell name for digital twins
- * the _ here is added to force the column _id to be the last in the column list
  */
-val modelDefaultProperties = mutableMapOf("_id" to "string")
+val modelDefaultProperties = mutableMapOf("id" to "string")
 
 /**
  * Default header cell name for relations

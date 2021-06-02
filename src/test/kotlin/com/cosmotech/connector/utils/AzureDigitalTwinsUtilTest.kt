@@ -46,7 +46,7 @@ class AzureDigitalTwinsUtilTest: AbstractUnitTest() {
             "IsProportionType" to "boolean",
             "StartingDate" to "dateTime",
             "Demands" to "CompositeType",
-            "_id" to "string")
+            "id" to "string")
     private val defaultHeaderNameAndTypeForRelationship=
         mutableMapOf(
             "name" to "string",
