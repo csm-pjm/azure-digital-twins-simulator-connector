@@ -5,6 +5,11 @@ The aim of this project is to :
  - Export Csv Files containing these data
 
 ## Change logs
+
+### Version 2.1.0
+
+* Write ADT relationship IDs in the corresponding relationship CSV files generated
+
 ### Version 2.0.1
 * Fix an issue with unexisting target directories
 * Added Cosmo Tech Digital Twins Platform manifest for the connector in platform/Connector.yaml
