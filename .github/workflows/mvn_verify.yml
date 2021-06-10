@@ -31,4 +31,4 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Maven Verify
-        run: mvn -B clean verify
+        run: mvn -B clean install
