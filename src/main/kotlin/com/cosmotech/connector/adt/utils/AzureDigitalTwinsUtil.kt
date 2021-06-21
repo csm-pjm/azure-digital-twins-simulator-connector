@@ -194,6 +194,12 @@ class AzureDigitalTwinsUtil {
             return configuration.getOptionalValue(CSM_FETCH_ABSOLUTE_PATH,String::class.java)
         }
 
+        /** Get the Azure Tenant Id for ADT*/
+        @JvmStatic
+        fun getAzureAdtTenantId(): String {
+            return configuration.getValue(AZURE_ADT_TENANT_ID_KEY,String::class.java)
+        }
+
         /** Get the Azure Tenant Id*/
         @JvmStatic
         fun getAzureTenantId(): String {

@@ -8,6 +8,9 @@ package com.cosmotech.connector.adt.constants
 // ############################
 
 /** Environment variable in which the Azure tenant is stored */
+const val AZURE_ADT_TENANT_ID_KEY = "azure.adt.tenant.id"
+
+/** Environment variable in which the Azure tenant is stored */
 const val AZURE_TENANT_ID_KEY = "azure.tenant.id"
 
 /** Environment variable in which the Azure tenant is stored */

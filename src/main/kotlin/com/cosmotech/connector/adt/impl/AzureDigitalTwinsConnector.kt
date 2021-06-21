@@ -28,13 +28,11 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
     }
 
     override fun createClient(): DigitalTwinsClient {
-        LOGGER.info("Create Digital Twins Client")
+        LOGGER.info("Create Digital Twins Client with Default Credential")
         return DigitalTwinsClientBuilder()
             .credential(
-                ClientSecretCredentialBuilder()
-                    .clientId(AzureDigitalTwinsUtil.getAzureClientId())
-                    .tenantId(AzureDigitalTwinsUtil.getAzureTenantId())
-                    .clientSecret(AzureDigitalTwinsUtil.getAzureClientSecret())
+                DefaultAzureCredentialBuilder()
+                    .tenantId(AzureDigitalTwinsUtil.getAzureAdtTenantId())
                     .build()
             )
             .endpoint(AzureDigitalTwinsUtil.getInstanceUrl())
