@@ -32,7 +32,6 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
         return DigitalTwinsClientBuilder()
             .credential(
                 DefaultAzureCredentialBuilder()
-                    .tenantId(AzureDigitalTwinsUtil.getAzureAdtTenantId())
                     .build()
             )
             .endpoint(AzureDigitalTwinsUtil.getInstanceUrl())
