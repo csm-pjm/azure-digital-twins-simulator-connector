@@ -65,38 +65,32 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
 
         modelInformationList = AzureDigitalTwinsUtil.retrievePropertiesFromBaseModels(modelInformationList)
 
-        val digitalTwinInstances = constructDigitalTwinInstances(modelInformationList, client)
+        val digitalTwinInformation = constructDigitalTwinInstances(modelInformationList, client)
 
-        val digitalTwinInformation = mutableListOf<Pair<DTDLModelInformation,BasicDigitalTwin>>()
-        digitalTwinInstances
-            .sortedBy { it.id }
-            .forEach { dtInstance ->
-            val modelMatched = modelInformationList.first { it.id == dtInstance.metadata.modelId }
-            digitalTwinInformation.add(Pair(modelMatched,dtInstance))
-        }
+        digitalTwinInformation
+            .sortedBy { it.second.id }
+            .forEach { (modelInformation,dtInstance) ->
+                val dtHeaderDefaultValues = mutableListOf<String>(dtInstance.id)
+                AzureDigitalTwinsUtil
+                    .constructDigitalTwinInformation(
+                        dtInstance,
+                        modelInformation.properties,
+                        dtHeaderDefaultValues,
+                        dataToExport
+                    )
 
-        digitalTwinInformation.forEach { (modelInformation,dtInstance) ->
-            val dtHeaderDefaultValues = mutableListOf<String>(dtInstance.id)
-            AzureDigitalTwinsUtil
-                .constructDigitalTwinInformation(
-                    dtInstance,
-                    modelInformation.properties,
-                    dtHeaderDefaultValues,
-                    dataToExport
-                )
+                val currentRelationships =
+                    client
+                        .listRelationships(dtInstance.id, BasicRelationship::class.java)
+                        .toList()
+                        .groupBy { it.name }
 
-            val currentRelationships =
-                client
-                    .listRelationships(dtInstance.id, BasicRelationship::class.java)
-                    .toList()
-                    .groupBy { it.name }
-
-            AzureDigitalTwinsUtil
-                .constructRelationshipInformation(
-                    currentRelationships,
-                    dataToExport
-                )
-        }
+                AzureDigitalTwinsUtil
+                    .constructRelationshipInformation(
+                        currentRelationships,
+                        dataToExport
+                    )
+            }
 
         return dataToExport
     }
@@ -133,8 +127,8 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
     private fun constructDigitalTwinInstances(
         modelInformationList: MutableList<DTDLModelInformation>,
         client: DigitalTwinsClient
-    ): MutableList<BasicDigitalTwin> {
-        val digitalTwinInstances = mutableListOf<BasicDigitalTwin>()
+    ): MutableList<Pair<DTDLModelInformation,BasicDigitalTwin>> {
+        val digitalTwinInformation = mutableListOf<Pair<DTDLModelInformation,BasicDigitalTwin>>()
         // Construct DT information list
         modelInformationList.forEach { modelInformation ->
             val digitalTwinInModel = client.query(
@@ -143,9 +137,9 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
             )
             digitalTwinInModel
                 .forEach {
-                    digitalTwinInstances.add(it)
+                    digitalTwinInformation.add(Pair(modelInformation,it))
                 }
         }
-        return digitalTwinInstances
+        return digitalTwinInformation
     }
 }
