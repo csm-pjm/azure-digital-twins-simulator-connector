@@ -138,7 +138,7 @@ class AzureDigitalTwinsConnector : Connector<DigitalTwinsClient,List<CsvData>,Li
         // Construct DT information list
         modelInformationList.forEach { modelInformation ->
             val digitalTwinInModel = client.query(
-                "SELECT * FROM DIGITALTWINS WHERE IS_OF_MODEL('${modelInformation.id}')",
+                "SELECT * FROM DIGITALTWINS WHERE IS_OF_MODEL('${modelInformation.id}', exact)",
                 BasicDigitalTwin::class.java
             )
             digitalTwinInModel
