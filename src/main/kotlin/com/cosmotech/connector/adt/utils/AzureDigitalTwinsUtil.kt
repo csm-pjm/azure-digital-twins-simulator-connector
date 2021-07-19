@@ -163,21 +163,32 @@ class AzureDigitalTwinsUtil {
         }
 
         /**
+         * Recursively add properties from base model to all the derived models
+         * @param baseModel
+         * @param modelsList all existing models
+         */
+        private fun fillExtendingModelsProperties(baseModel: DTDLModelInformation, modelsList: MutableList<DTDLModelInformation>) {
+            modelsList
+                .filter { it.baseModels?.contains(baseModel.id) ?: false }
+                .forEach { extendingModel ->
+                    baseModel.properties.forEach { (key, value) ->
+                        extendingModel.properties.putIfAbsent(key, value)
+                    }
+                    fillExtendingModelsProperties(extendingModel, modelsList)
+                }
+        }
+
+        /**
          * Retrieve and Fill the missing properties for all extension model
          * @param modelInformationList existing Digital Twin Model list
          * @return the modelInformationList completed
          */
         @JvmStatic
-        fun retrievePropertiesFromExtendedModel(modelInformationList: MutableList<DTDLModelInformation>):MutableList<DTDLModelInformation> {
+        fun retrievePropertiesFromBaseModels(modelInformationList: MutableList<DTDLModelInformation>):MutableList<DTDLModelInformation> {
             modelInformationList
-                .sortedBy { it.id }
-                .filter { it.isExtension }
-                .forEach { information ->
-                    val extendedModel =
-                        modelInformationList.find { information.baseModels?.contains(it.id) ?: false}
-                    extendedModel?.properties?.forEach { (key, value) ->
-                        information.properties.putIfAbsent(key, value)
-                    }
+                .filter { it.baseModels == null }
+                .forEach { baseModel ->
+                    fillExtendingModelsProperties(baseModel, modelInformationList)
                 }
             return modelInformationList
         }
